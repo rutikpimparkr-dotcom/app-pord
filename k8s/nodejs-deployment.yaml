@@ -50,7 +50,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: mysql-secret
-              key: 
+              key: MYSQL_USER
 
         - name: DB_PASSWORD
           valueFrom:
