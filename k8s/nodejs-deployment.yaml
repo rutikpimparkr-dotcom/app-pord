@@ -19,7 +19,7 @@ spec:
       containers:
       - name: nodejs
 
-        image: rutik141/my-nodejs-app:8
+        image: rutik141/
 
         imagePullPolicy: Always
 
