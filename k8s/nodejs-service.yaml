@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-service
+  namespace: app-prod
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: nodejs
+
+  ports:
+  - port: 3000
+    targetPort: 3000

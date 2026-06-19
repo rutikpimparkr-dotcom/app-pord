@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: app-prod
+
+spec:
+  serviceName: mysql-headless
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: mysql
+
+  template:
+    metadata:
+      labels:
+        app: mysql
+
+    spec:
+
+      securityContext:
+        fsGroup: 999
+
+      containers:
+      - name: mysql
+
+        image: mysql:8.4
+
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - containerPort: 3306
+
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_DATABASE
+
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_USER
+
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+
+        volumeMounts:
+
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+
+        - name: mysql-config
+          mountPath: /etc/mysql/conf.d
+
+        readinessProbe:
+          exec:
+            command:
+              - mysqladmin
+              - ping
+              - -h
+              - 127.0.0.1
+              - -uroot
+              - -proot123
+
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+        livenessProbe:
+          exec:
+            command:
+              - mysqladmin
+              - ping
+              - -h
+              - 127.0.0.1
+              - -uroot
+              - -proot123
+
+          initialDelaySeconds: 60
+          periodSeconds: 20
+
+      volumes:
+      - name: mysql-config
+        configMap:
+          name: mysql-config
+
+  volumeClaimTemplates:
+
+  - metadata:
+      name: mysql-data
+
+    spec:
+      accessModes:
+      - ReadWriteOnce
+
+      resources:
+        requests:
+          storage: 1Gi

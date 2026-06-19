@@ -1,0 +1,8 @@
+node_modules
+.env
+k8s
+.git
+.gitignore
+*.log
+node
+nodejs-mysql-app@1.0.0
